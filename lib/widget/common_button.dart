@@ -6,6 +6,7 @@ class CommonButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final Color? iconColor;
+  final VoidCallback callback;
 
   const CommonButton({
     super.key,
@@ -14,20 +15,22 @@ class CommonButton extends StatelessWidget {
     this.backgroundColor,
     required this.foregroundColor,
     required this.iconColor,
+    required this.callback
+
   });
 
   @override
   Widget build(BuildContext context) {
     return IntrinsicWidth(
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: callback,
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           textStyle: TextStyle(fontSize: 16),
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Row(
