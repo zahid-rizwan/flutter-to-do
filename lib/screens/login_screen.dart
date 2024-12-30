@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app_1_0/data/local/db_helper.dart';
 import 'package:todo_app_1_0/screens/homeScreen.dart';
 import 'package:todo_app_1_0/screens/sign_up_screen.dart';
+import 'package:todo_app_1_0/screens/splash_screen.dart';
 
 import '../utils/constans.dart';
 import '../widget/common_button.dart';
@@ -19,9 +24,10 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool _isPasswordHidden = true;
-  Map<String, dynamic>? user;
+  static  Map<String, dynamic>? user;
   String? _emailError;
   DBHelper? dbRef;
+
 
   @override
   void initState() {
@@ -112,6 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 emailController.text, passwordController.text);
                             if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty){
                               if (user != null) {
+                                var sharedPref = await SharedPreferences.getInstance();
+                                sharedPref.setBool(SplashScreenState.KYELOGIN, true);
+                                String userJson = jsonEncode(user);
+                                await sharedPref.setString('user', userJson);
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -224,4 +234,5 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
 }

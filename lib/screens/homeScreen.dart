@@ -2,13 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app_1_0/data/local/db_helper.dart';
 import 'package:todo_app_1_0/screens/login_screen.dart';
+import 'package:todo_app_1_0/screens/splash_screen.dart';
 import 'package:todo_app_1_0/utils/constans.dart';
 
 class HomeScreen extends StatefulWidget {
-  Map<String,dynamic>? user;
+  Map<String, dynamic>? user;
+
   HomeScreen({required this.user});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -17,7 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
   DBHelper? dbRef;
   final List<Map<String, String>> arrData = [
     {'name': 'Java', 'mobno': '789456123', 'unread': '2', 'date': '2024-12-25'},
-    {'name': 'Flutter', 'mobno': '123456789', 'unread': '5', 'date': '2024-12-26'},
+    {
+      'name': 'Flutter',
+      'mobno': '123456789',
+      'unread': '5',
+      'date': '2024-12-26'
+    },
     {'name': 'Dart', 'mobno': '987654321', 'unread': '3', 'date': '2024-12-27'},
     {'name': 'Dart', 'mobno': '987654321', 'unread': '3', 'date': '2024-12-27'},
     {'name': 'Dart', 'mobno': '987654321', 'unread': '3', 'date': '2024-12-27'},
@@ -32,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? completionDate;
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
       'Index 0: Home',
@@ -47,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
       style: optionStyle,
     ),
   ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -56,23 +66,22 @@ class _HomeScreenState extends State<HomeScreen> {
   // TextEditingController descController = TextEditingController();
   List<Map<String, dynamic>> allNotes = [];
   List<Map<String, dynamic>> allTask = [];
-  Map<String,dynamic>? user;
+  Map<String, dynamic>? user;
   bool isLoading = true;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    user=widget.user;
-    dbRef=DBHelper.getInstance;
+    user = widget.user;
+    dbRef = DBHelper.getInstance;
     fetchTasks();
-
-
   }
-  Future<void> fetchTasks()  async {
-     await getTodo();
-     await getAllTask();
-      setState(() {
+
+  Future<void> fetchTasks() async {
+    await getTodo();
+    await getAllTask();
+    setState(() {
       isLoading = false; // Mark loading as false once tasks are fetched
     });
   }
@@ -86,7 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: 20),
           _buildSearchField(),
           Align(
-            alignment: Alignment.centerLeft, // Ensures "Your Task" aligns to the left
+            alignment: Alignment.centerLeft,
+            // Ensures "Your Task" aligns to the left
             child: _buildSectionTitle("Your Task"),
           ),
           _buildTaskFilters(),
@@ -95,15 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildBottomNavigationBar(),
         ],
       ),
-      drawer:Drawer(
+      drawer: Drawer(
         child: ListView(
           children: [
             DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue
-                ),
-                child: Text("Header")
-            ),
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text("Header")),
             ListTile(
               title: const Text('Home'),
               selected: _selectedIndex == 0,
@@ -134,7 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
               },
             ),
-
           ],
         ),
       ),
@@ -154,8 +160,16 @@ class _HomeScreenState extends State<HomeScreen> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Hello", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Colors.black)),
-              Text(user?[DBHelper.COLUMN_USER_USER_NAME], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              Text("Hello",
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black)),
+              Text(user?[DBHelper.COLUMN_USER_USER_NAME],
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black)),
             ],
           ),
           // trailing: Builder(builder: (context){
@@ -172,7 +186,6 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Loading..."),
       );
     }
-
   }
 
   Widget _buildSearchField() {
@@ -199,7 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Adjusted padding
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      // Adjusted padding
       child: Text(
         title,
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -258,13 +272,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           },
-          child: _buildTaskCard(task),
+          child: _buildTaskCard(task,index),
         );
       },
     );
   }
 
-  Widget _buildTaskCard(Map<String, dynamic> task) {
+  Widget _buildTaskCard(Map<String, dynamic> task,int index) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -274,50 +288,66 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTaskHeader(task[DBHelper.COLUMN_TODO_TASK_NAME]!,task[DBHelper.COLUMN_TASK_TASK_ID]),
+            _buildTaskHeader(
+              task[DBHelper.COLUMN_TODO_TASK_NAME] ?? 'Untitled Task',
+              index,
+            ),
             SizedBox(height: 8),
-            _buildTaskDescription(task[DBHelper.COLUMN_TODO_TASK_DESCRIPTION]!),
+            _buildTaskDescription(
+              task[DBHelper.COLUMN_TODO_TASK_DESCRIPTION] ??
+                  'No description available',
+            ),
             SizedBox(height: 16),
-            _buildTaskFooter(task[DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE]!),
+            _buildTaskFooter(
+              task[DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE]?.toString() ??
+                  'No date set',
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTaskHeader(String title,int taskId) {
+  Widget _buildTaskHeader(String title, int taskId) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
         PopupMenuButton<String>(
-          onSelected: (result)async {
+          onSelected: (result) async {
             if (result == 'edit') {
+              // titleController.text=allTask[taskId][DBHelper.COLUMN_TODO_TASK_NAME];
+              // descController.text=allTask[taskId][DBHelper.COLUMN_TODO_TASK_DESCRIPTION];
+              // controller.text=allTask[taskId][DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE].toString().split('T')[0];
+              showBottomSheet(isUpdate: true, taskId: taskId);
               print('Edit tapped');
             } else if (result == 'delete') {
-
-                bool check = await dbRef!.deleteTask(taskId: taskId);
-                if(check){
-                  getAllTask();
-                  print("success");
-                  Fluttertoast.showToast(
-                    msg: "Deleted successfully",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.SNACKBAR,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.red,
-                    fontSize: 16.0,
-                  );
-
+              bool check = await dbRef!.deleteTask(taskId: allTask[taskId][DBHelper.COLUMN_TASK_TASK_ID]);
+              if (check) {
+                getAllTask();
+                print("success");
+                Fluttertoast.showToast(
+                  msg: "Deleted successfully",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.SNACKBAR,
+                  backgroundColor: Colors.grey,
+                  textColor: Colors.red,
+                  fontSize: 16.0,
+                );
               }
             }
           },
           itemBuilder: (context) => [
-            PopupMenuItem(value: 'edit', child: _buildPopupMenuItem(Icons.edit, 'Edit', Colors.blue)),
-            PopupMenuItem(value: 'delete', child: _buildPopupMenuItem(Icons.delete, 'Delete', Colors.red)),
+            PopupMenuItem(
+                value: 'edit',
+                child: _buildPopupMenuItem(Icons.edit, 'Edit', Colors.blue)),
+            PopupMenuItem(
+                value: 'delete',
+                child: _buildPopupMenuItem(Icons.delete, 'Delete', Colors.red)),
           ],
         ),
       ],
@@ -349,9 +379,15 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Row(
           children: [
-            Icon(Icons.calendar_month,size: 15,),
-            Text(": ${date.split('T')[0]}", style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey[500])),
-
+            Icon(
+              Icons.calendar_month,
+              size: 15,
+            ),
+            Text(": ${date.split('T')[0]}",
+                style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[500])),
           ],
         ),
         Row(
@@ -368,10 +404,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBadge(String label, Color bgColor) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+      decoration:
+          BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
       child: Text(
         label,
-        style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+        style: TextStyle(
+            fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -386,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -396,124 +434,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: Icon(Icons.home)),
             GestureDetector(
-              onTap: (){
-                showModalBottomSheet(isScrollControlled:true,context: context, builder: (context){
-                  return SingleChildScrollView(
-                    child: Padding(padding: EdgeInsets.only(
-                      left: 11,
-                      right: 11,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 11,
-                      top: 11
-                    ),
-                    child: Column(
-                      mainAxisSize:MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(textAlign: TextAlign.center,"Add Task",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25),),
-                        SizedBox(
-                          height: 21,
-                        ),
-                        TextField(
-                          controller: titleController,
-                          decoration: InputDecoration(
-                            hintText: "Enter title here",
-                            label: Text("Title *"),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(11)
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(11)
-                            )
-                          ),
-                        ),
-                        SizedBox(
-                          height: 11,
-                        ),
-                        TextField(
-                          controller: descController,
-                          decoration: InputDecoration(
-                              hintText: "Enter description here",
-                              label: Text("Description *"),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(11)
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(11)
-                              )
-                          ),
-                        ),
-                        SizedBox(
-                          height: 11,
-                        ),
-                        TextField(
-                          controller: controller,
-                          decoration: InputDecoration(
-                            labelText: 'Completion Date',
-                            hintText: 'Tap to select a date',
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11)
-                            ),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(11)
-                              ),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.calendar_today),
-                              onPressed: () =>_selectDate(context), // Open date picker on tap
-                            ),
-                          ),
-                          readOnly: true, // Makes the TextField read-only so users cannot type in it
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(onPressed: ()async{
-                                if(titleController.text.isNotEmpty && descController.text.isNotEmpty && completionDate.toString().isNotEmpty){
-                                  bool check =await dbRef!.addTask(userId: user?[DBHelper.COLUMN_USER_USER_ID], taskName: titleController.text, taskDescription: descController.text, taskStatus: "pending",completionDate: completionDate);
-
-                                  if(check){
-                                    print("success");
-
-                                  }
-                                  getAllTask();
-                                  Navigator.pop(context);
-                                  setState(() {
-
-                                  });
-
-
-                                }
-                                else{
-
-                                }
-
-                              }, child: Text("Add")),
-                            ),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Cancel"),
-                              ),
-                            ),
-
-                          ],
-                        )
-                      ],
-
-                    ),),
-                  );
-                });
+              onTap: () {
+                showBottomSheet(isUpdate: false, taskId: 0);
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primaryButtonColor,
-                  borderRadius: BorderRadius.circular(16)
+                    color: AppColors.primaryButtonColor,
+                    borderRadius: BorderRadius.circular(16)),
+                child: Icon(
+                  Icons.add,
+                  size: 35,
+                  color: Colors.white,
                 ),
-                child: Icon(Icons.add, size: 35,color: Colors.white,),
               ),
             ),
             Icon(FontAwesomeIcons.solidUser),
             GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -528,35 +465,35 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> getTodo() async{
+  Future<void> getTodo() async {
     dbRef?.logDatabaseSchema();
     allNotes = await dbRef!.getAllUser();
-    setState(() {
-
-    });
-
+    setState(() {});
   }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(), // Current date as initial date
-      firstDate: DateTime(2000),   // First available date
-      lastDate: DateTime(2101),    // Last available date
+      firstDate: DateTime(2000), // First available date
+      lastDate: DateTime(2101), // Last available date
     );
 
     if (pickedDate != null) {
-      completionDate=pickedDate.toIso8601String();
+      completionDate = pickedDate.toIso8601String();
       // If a date is picked, update the text field with the selected date
       setState(() {
-        controller.text = "${pickedDate.toLocal()}".split(' ')[0]; // Format date
+        controller.text =
+            "${pickedDate.toLocal()}".split(' ')[0]; // Format date
       });
     }
   }
 
-  Future<void> getAllTask() async{
-    final task =await dbRef!.fetchTasksByUserId(user?[DBHelper.COLUMN_USER_USER_ID]);
+  Future<void> getAllTask() async {
+    final task =
+        await dbRef!.fetchTasksByUserId(user?[DBHelper.COLUMN_USER_USER_ID]);
     print(allTask);
-    if(task!=null){
+    if (task != null) {
       setState(() {
         allTask = task;
       });
@@ -564,7 +501,147 @@ class _HomeScreenState extends State<HomeScreen> {
     print("all task");
     print(user);
   }
+
+  void showBottomSheet({required bool isUpdate, required int taskId}) {
+    String text;
+    if (isUpdate) {
+      titleController.text = allTask[taskId][DBHelper.COLUMN_TODO_TASK_NAME];
+      descController.text = allTask[taskId][DBHelper.COLUMN_TODO_TASK_DESCRIPTION];
+      text = allTask[taskId][DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE].toString();
+      controller.text = text.split('T')[0];
+    }
+    else{
+      titleController.clear();
+      descController.clear();
+      controller.clear();
+    }
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  left: 11,
+                  right: 11,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 11,
+                  top: 11),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    textAlign: TextAlign.center,
+                    !isUpdate ? "Add Task" : "Update task",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                  ),
+                  SizedBox(
+                    height: 21,
+                  ),
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                        hintText: "Enter title here",
+                        label: Text("Title *"),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11))),
+                  ),
+                  SizedBox(
+                    height: 11,
+                  ),
+                  TextField(
+                    controller: descController,
+                    decoration: InputDecoration(
+                        hintText: "Enter description here",
+                        label: Text("Description *"),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(11))),
+                  ),
+                  SizedBox(
+                    height: 11,
+                  ),
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: 'Completion Date',
+                      hintText: 'Tap to select a date',
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(11)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(11)),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () =>
+                            _selectDate(context), // Open date picker on tap
+                      ),
+                    ),
+                    readOnly: true,
+                    onTap: () => _selectDate(
+                        context), // Makes the TextField read-only so users cannot type in it
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                            onPressed: () async {
+                              if (titleController.text.isNotEmpty &&
+                                  descController.text.isNotEmpty &&
+                                  completionDate != null) {
+                                bool? check = (!isUpdate
+                                    ? await dbRef!.addTask(
+                                        userId:
+                                            user?[DBHelper.COLUMN_USER_USER_ID],
+                                        taskName: titleController.text,
+                                        taskDescription: descController.text,
+                                        taskStatus: "pending",
+                                        completionDate: completionDate)
+                                    : await dbRef?.updateTask(
+                                        name: titleController.text,
+                                        desc: descController.text,
+                                        date: completionDate as String,
+                                        taskId: allTask[taskId][DBHelper.COLUMN_TASK_TASK_ID]));
+
+                                if (check!) {
+                                  titleController.clear();
+                                  descController.clear();
+                                  controller.clear();
+                                }
+                                getAllTask();
+                                Navigator.pop(context);
+                                setState(() {});
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: "love u mere dost",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.TOP,
+                                  backgroundColor: Colors.grey,
+                                  textColor: Colors.red,
+                                  fontSize: 16.0,
+                                );
+                              }
+                            },
+                            child: Text(!isUpdate ? "Add" : "Update")),
+                      ),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Cancel"),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
 }
+
 class TaskDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> task;
 
@@ -588,7 +665,8 @@ class TaskDetailsScreen extends StatelessWidget {
             SizedBox(height: 20),
             Text("Name: ${task[DBHelper.COLUMN_TODO_TASK_NAME]}"),
             Text("Description: ${task[DBHelper.COLUMN_TODO_TASK_DESCRIPTION]}"),
-            Text("Date: ${task[DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE].toString().split("T")[0]}"),
+            Text(
+                "Date: ${task[DBHelper.COLUMN_TODO_TASK_COMPLETION_DATE].toString().split("T")[0]}"),
           ],
         ),
       ),
